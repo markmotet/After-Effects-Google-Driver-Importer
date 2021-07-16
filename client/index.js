@@ -21,8 +21,6 @@ const drive = google.drive({
     auth: oAuth2Client
 });
 
-
-
 function getFileIds(theFolderUrl) {
   https.get(theFolderUrl, (response) => {
   
@@ -47,28 +45,16 @@ function getFileIds(theFolderUrl) {
 }
 
 async function getDataFromFileId(ids) {
-
   for(var i = 0; i < ids.length; i++) {
-
       const response = await drive.files.get({
         fileId: ids[i],
         fields: '*' // Only add necessary ones
       });
-
-      console.log(response.data.thumbnailLink);
-
       addImage(response.data.thumbnailLink);
-
-
   }
-
 }
 
-
-
-
 function addImage(imageUrl) {
-
   const gridContainer = document.getElementById('grid-container');
 
   const newGridElement = document.createElement('div');
@@ -79,24 +65,33 @@ function addImage(imageUrl) {
 
   newGridElement.appendChild(newGridImage);
   gridContainer.appendChild(newGridElement);
-
 }
 
+function downloadFile(fileId, saveLocation) {
+  drive.files.get(
+    {fileId: fileId, alt: 'media'},
+    {responseType: 'arraybuffer'}
+  )
+  .then((response) => {
+    fs.writeFile(saveLocation, new Buffer.from(response.data), (err) => {})
+  })
+}
 
-/* 1) Create an instance of CSInterface. */
-var csInterface = new CSInterface();
-/* 2) Make a reference to your HTML button and add a click handler. */
-var importButton = document.getElementById('import-button');
+downloadFile('1hKmhAE7Ggg81L32iyABoET0keMufJqFZ', 'B:/Desktop/test.mp4');
 
-importButton.addEventListener('click', () => {
-  alert(document.getElementById('url-input').value);
+
+// /* 1) Create an instance of CSInterface. */
+// var csInterface = new CSInterface();
+// /* 2) Make a reference to your HTML button and add a click handler. */
+// var importButton = document.getElementById('import-button');
+
+// importButton.addEventListener('click', () => {
+//   alert(document.getElementById('url-input').value);
   
-  const folderId = document.getElementById('url-input').value; //271MuAMCgwtfi5m9MGXXsQDBEn3AR6R7uED //Doesn't work with other folders?
-  const apiKey = 'AIzaSyDsrn8JHxDN7wKLMDborhElW4hC65RnSLE';
-  const folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
+//   const folderId = document.getElementById('url-input').value; //271MuAMCgwtfi5m9MGXXsQDBEn3AR6R7uED //Doesn't work with other folders?
+//   const apiKey = 'AIzaSyDsrn8JHxDN7wKLMDborhElW4hC65RnSLE';
+//   const folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
 
-  getFileIds(folderUrl);
-
-
-});
+//   getFileIds(folderUrl);
+// });
 
