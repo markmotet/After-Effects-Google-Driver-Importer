@@ -2,24 +2,32 @@ const fs = require('fs');
 const https = require('https');
 const {google} = require('googleapis');
 
-const CLIENT_ID = '';
-const CLIENT_SECRET = '';
-const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-
-const REFRESH_TOKEN = '';
-
-const oAuth2Client = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
-    REDIRECT_URI
-);
-
-oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-
 const drive = google.drive({
     version: 'v3', 
-    auth: oAuth2Client
+    auth: 'API_KEY'
 });
+
+async function getDriveFiles(fileIds) {
+
+  // Stores the important metadata of each file in the Drive folder
+  //var driveFileList = [];
+
+  for (fileId in fileIds) {
+      var response = await drive.files.get({
+        fileId: fileIds[fileId],
+        fields: '*' // Only add necessary ones
+      });
+  
+      // Retrieving metadata from the response
+      var id = response.data.id;
+      var name = response.data.name;
+      var thumbnailLink = response.data.thumbnailLink;
+
+      addImage(id, name, thumbnailLink)
+      //driveFileList.push(new DriveFile(id, name, thumbnailLink));
+  }
+  
+}
 
 function getFileIds(theFolderUrl) {
   https.get(theFolderUrl, (response) => {
@@ -38,30 +46,22 @@ function getFileIds(theFolderUrl) {
       for (var i = 0; i < files.length; i++) {
         ids[i] = files[i].id;
       }
-
-      getDataFromFileId(ids);
+      getDriveFiles(ids);
     });
   })
 }
 
-async function getDataFromFileId(ids) {
-  for(var i = 0; i < ids.length; i++) {
-      const response = await drive.files.get({
-        fileId: ids[i],
-        fields: '*' // Only add necessary ones
-      });
-      addImage(response.data.thumbnailLink);
-  }
-}
-
-function addImage(imageUrl) {
+function addImage(id, name, thumbnailLink) {
   const gridContainer = document.getElementById('grid-container');
 
   const newGridElement = document.createElement('div');
   newGridElement.className = 'grid-item';
+  newGridElement.onclick = function () {
+    downloadFile(id, 'B:/Desktop/' + name);
+  }
 
   const newGridImage = document.createElement('img');
-  newGridImage.src = imageUrl;
+  newGridImage.src = thumbnailLink;
 
   newGridElement.appendChild(newGridImage);
   gridContainer.appendChild(newGridElement);
@@ -77,21 +77,16 @@ function downloadFile(fileId, saveLocation) {
   })
 }
 
-downloadFile('1hKmhAE7Ggg81L32iyABoET0keMufJqFZ', 'B:/Desktop/test.mp4');
+var csInterface = new CSInterface();
 
+var importButton = document.getElementById('import-button');
 
-// /* 1) Create an instance of CSInterface. */
-// var csInterface = new CSInterface();
-// /* 2) Make a reference to your HTML button and add a click handler. */
-// var importButton = document.getElementById('import-button');
-
-// importButton.addEventListener('click', () => {
-//   alert(document.getElementById('url-input').value);
+importButton.addEventListener('click', () => {
   
-//   const folderId = document.getElementById('url-input').value; //271MuAMCgwtfi5m9MGXXsQDBEn3AR6R7uED //Doesn't work with other folders?
-//   const apiKey = 'AIzaSyDsrn8JHxDN7wKLMDborhElW4hC65RnSLE';
-//   const folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
+  const folderId = document.getElementById('url-input').value;
+  const apiKey = 'API_KEY';
+  const folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
 
-//   getFileIds(folderUrl);
-// });
+  getFileIds(folderUrl);
+});
 
