@@ -4,7 +4,7 @@ const {google} = require('googleapis');
 
 const drive = google.drive({
     version: 'v3', 
-    auth: 'AUTH_KEY'
+    auth: ''
 });
 
 var csInterface = new CSInterface();
@@ -21,7 +21,6 @@ setTimeout(() => {
   projectLocation = projectLocation.split('\\');
   projectLocation.pop();
   projectLocation = projectLocation.join('/')
-  alert(projectLocation)
 
 }, 100);
 
@@ -65,6 +64,35 @@ async function getDriveFiles(fileIds) {
       addImage(id, name, thumbnailLink)
   }
 }
+// Creates a folder in the same directory as the AE project
+function createFolder(folderName) {
+  var dir = projectLocation + '/' + folderName;
+  if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
+  }
+  return dir;
+}
+
+function importFile(fileLocation) {
+  csInterface.evalScript('importFile(' + '"' + fileLocation + '"' + ')', (result) => {
+
+  });
+}
+
+function downloadFile(fileId, saveLocation) {
+
+  // I should check if it's already downloaded. Current implementation downloads every time
+
+  drive.files.get(
+    {fileId: fileId, alt: 'media'},
+    {responseType: 'arraybuffer'}
+  )
+  .then((response) => {
+    fs.writeFile(saveLocation, new Buffer.from(response.data), (err) => {})
+    importFile(saveLocation);
+  })
+}
+
 
 // Adds a thumbnail image to the extension that downloads the file when clicked
 function addImage(id, name, thumbnailLink) {
@@ -73,9 +101,8 @@ function addImage(id, name, thumbnailLink) {
   var newGridElement = document.createElement('div');
   newGridElement.className = 'grid-item';
   newGridElement.onclick = function () {
-    alert(id)
-    alert(projectLocation + '/' + name)
-    downloadFile(id, projectLocation + '/' + name);
+    var newFolderLocation = createFolder('Google Drive Downloads');
+    downloadFile(id, newFolderLocation + '/' + name);
   }
 
   var newGridImage = document.createElement('img');
@@ -85,22 +112,12 @@ function addImage(id, name, thumbnailLink) {
   gridContainer.appendChild(newGridElement);
 }
 
-function downloadFile(fileId, saveLocation) {
-  drive.files.get(
-    {fileId: fileId, alt: 'media'},
-    {responseType: 'arraybuffer'}
-  )
-  .then((response) => {
-    fs.writeFile(saveLocation, new Buffer.from(response.data), (err) => {})
-  })
-}
-
 var importButton = document.getElementById('import-button');
 
 importButton.addEventListener('click', () => {
   
   var folderId = document.getElementById('url-input').value;
-  var apiKey = 'AUTH_KEY';
+  var apiKey = '';
   var folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
 
   getFileIds(folderUrl);
