@@ -4,31 +4,28 @@ const {google} = require('googleapis');
 
 const drive = google.drive({
     version: 'v3', 
-    auth: 'API_KEY'
+    auth: 'AUTH_KEY'
 });
 
-async function getDriveFiles(fileIds) {
+var csInterface = new CSInterface();
 
-  // Stores the important metadata of each file in the Drive folder
-  //var driveFileList = [];
+var projectLocation;
+csInterface.evalScript('getProjectLocation()', (result) => {
+  projectLocation = result;
+});
 
-  for (fileId in fileIds) {
-      var response = await drive.files.get({
-        fileId: fileIds[fileId],
-        fields: '*' // Only add necessary ones
-      });
-  
-      // Retrieving metadata from the response
-      var id = response.data.id;
-      var name = response.data.name;
-      var thumbnailLink = response.data.thumbnailLink;
+// setTimeout required otherwise result would be undefined
+setTimeout(() => {
 
-      addImage(id, name, thumbnailLink)
-      //driveFileList.push(new DriveFile(id, name, thumbnailLink));
-  }
-  
-}
+  // Modifies projectLocation to exlude the project file name
+  projectLocation = projectLocation.split('\\');
+  projectLocation.pop();
+  projectLocation = projectLocation.join('/')
+  alert(projectLocation)
 
+}, 100);
+
+// Pipes all the file ids from a Google Drive folder to getDriveFiles()
 function getFileIds(theFolderUrl) {
   https.get(theFolderUrl, (response) => {
   
@@ -51,16 +48,37 @@ function getFileIds(theFolderUrl) {
   })
 }
 
-function addImage(id, name, thumbnailLink) {
-  const gridContainer = document.getElementById('grid-container');
+// Retrieves the id, name, and thumbnailLink for each input file id and pipes the info into addImage()
+async function getDriveFiles(fileIds) {
 
-  const newGridElement = document.createElement('div');
+  for (fileId in fileIds) {
+      var response = await drive.files.get({
+        fileId: fileIds[fileId],
+        fields: '*' // Only add necessary ones
+      });
+  
+      // Retrieving metadata from the response
+      var id = response.data.id;
+      var name = response.data.name;
+      var thumbnailLink = response.data.thumbnailLink;
+
+      addImage(id, name, thumbnailLink)
+  }
+}
+
+// Adds a thumbnail image to the extension that downloads the file when clicked
+function addImage(id, name, thumbnailLink) {
+  var gridContainer = document.getElementById('grid-container');
+
+  var newGridElement = document.createElement('div');
   newGridElement.className = 'grid-item';
   newGridElement.onclick = function () {
-    downloadFile(id, 'B:/Desktop/' + name);
+    alert(id)
+    alert(projectLocation + '/' + name)
+    downloadFile(id, projectLocation + '/' + name);
   }
 
-  const newGridImage = document.createElement('img');
+  var newGridImage = document.createElement('img');
   newGridImage.src = thumbnailLink;
 
   newGridElement.appendChild(newGridImage);
@@ -77,16 +95,21 @@ function downloadFile(fileId, saveLocation) {
   })
 }
 
-var csInterface = new CSInterface();
-
 var importButton = document.getElementById('import-button');
 
 importButton.addEventListener('click', () => {
   
-  const folderId = document.getElementById('url-input').value;
-  const apiKey = 'API_KEY';
-  const folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
+  var folderId = document.getElementById('url-input').value;
+  var apiKey = 'AUTH_KEY';
+  var folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
 
   getFileIds(folderUrl);
 });
 
+
+
+
+// function randomizeFrames() {
+//   var inputString = "randomizeFrames(" + framesPerCut + "," + color + ")";
+//   csInterface.evalScript(inputString, callback);
+// }
