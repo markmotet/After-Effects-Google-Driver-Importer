@@ -60,8 +60,9 @@ async function getDriveFiles(fileIds) {
       var id = response.data.id;
       var name = response.data.name;
       var thumbnailLink = response.data.thumbnailLink;
+      var mimeType = response.data.mimeType;
 
-      addImage(id, name, thumbnailLink)
+      addImage(id, name, thumbnailLink, mimeType);
   }
 }
 // Creates a folder in the same directory as the AE project
@@ -74,15 +75,10 @@ function createFolder(folderName) {
 }
 
 function importFile(fileLocation) {
-  csInterface.evalScript('importFile(' + '"' + fileLocation + '"' + ')', (result) => {
-
-  });
+  csInterface.evalScript('importFile(' + '"' + fileLocation + '"' + ')');
 }
 
 function downloadFile(fileId, saveLocation) {
-
-  // I should check if it's already downloaded. Current implementation downloads every time
-
   drive.files.get(
     {fileId: fileId, alt: 'media'},
     {responseType: 'arraybuffer'}
@@ -93,40 +89,77 @@ function downloadFile(fileId, saveLocation) {
   })
 }
 
-
 // Adds a thumbnail image to the extension that downloads the file when clicked
-function addImage(id, name, thumbnailLink) {
+function addImage(id, name, thumbnailLink, mimeType) {
   var gridContainer = document.getElementById('grid-container');
 
   var newGridElement = document.createElement('div');
   newGridElement.className = 'grid-item';
+
+
+
   newGridElement.onclick = function () {
     var newFolderLocation = createFolder('Google Drive Downloads');
     downloadFile(id, newFolderLocation + '/' + name);
   }
 
+  
+
+  //mimeType = mimeType.split('/')[0];
+  // if(thumbnailLink == undefined && mimeType == 'audio') {
+  //   newGridImage.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/audio_icon.svg';
+  // }
+  // else {
+  // newGridImage.src = thumbnailLink;
+  // }
+
+  // Adds thumbnail
   var newGridImage = document.createElement('img');
   newGridImage.src = thumbnailLink;
-
   newGridElement.appendChild(newGridImage);
+  
+  // Adds transparent download icon
+  var downloadIcon = document.createElement('img');
+  downloadIcon.className = 'hidden-icon';
+  downloadIcon.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/download-icon.svg';
+  //downloadIcon.style.opacity = 0;
+  newGridElement.appendChild(downloadIcon);
+
   gridContainer.appendChild(newGridElement);
+}
+
+function clearThumbnails() {
+  var gridContainer = document.getElementById('grid-container');
+  gridContainer.innerHTML = ''
 }
 
 var importButton = document.getElementById('import-button');
 
 importButton.addEventListener('click', () => {
+
+  clearThumbnails();
   
-  var folderId = document.getElementById('url-input').value;
+  var userInput = document.getElementById('url-input').value;
+  var folderId = urlToId(userInput);
   var apiKey = '';
   var folderUrl = 'https://www.googleapis.com/drive/v3/files?q=%27' + folderId + '%27+in+parents&key=' + apiKey;
 
   getFileIds(folderUrl);
 });
 
+function urlToId(url) {
+  
+  // If the input doesn't contain a '/', either the input is bad or the input is already the folder ID
+  if (!url.includes('/')) {
+    return url;
+  }
 
-
-
-// function randomizeFrames() {
-//   var inputString = "randomizeFrames(" + framesPerCut + "," + color + ")";
-//   csInterface.evalScript(inputString, callback);
-// }
+  // Isolates the last part of the url that has the folder ID
+  url = url.split('/').pop();
+  
+  // Chops off the url sharing bit from the url
+  if (url.includes('?usp=sharing')) {
+    url = url.substring(0, url.length - '?usp=sharing'.length);
+  }
+  return(url);
+}
