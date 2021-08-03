@@ -5,20 +5,6 @@ function getProjectLocation() {
     return path;
 }
 
-// Imports all the files in the input folder given by folderLocation
-function importFiles(folderLocation) {
-    
-    var files = new Folder(folderLocation).getFiles();
-    var item;
-    
-    app.beginUndoGroup("Google Drive Files Import");
-    for(var i = 0; i < files.length; i++) {
-        item = project.importFile(new ImportOptions(files[i]));
-        $.writeln(item.name)
-    }
-    app.endUndoGroup();
-}
-
 // Imports the one file given by fileLocation
 function importFile(fileLocation) {
     
@@ -37,12 +23,13 @@ function importFile(fileLocation) {
             break;
         }
         else if (i == projectItems.length) {
-            alert("Didn't find any folder");
             break;
         }
     }
 
+    app.beginUndoGroup("Google Drive Files Import");
     var importedFile = project.importFile(new ImportOptions(fileLocation));
     importedFile.parentFolder = driveFolder;
     importedFile.selected = true;
+    app.endUndoGroup();
 }
