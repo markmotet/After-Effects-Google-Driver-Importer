@@ -6,12 +6,14 @@ const {google} = require('googleapis');
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly',
                 'https://www.googleapis.com/auth/drive.readonly'];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
+
 
 const csInterface = new CSInterface();
 const extentionLocation = csInterface.getSystemPath(SystemPath.EXTENSION);
+
+// The file token.json stores the user's access and refresh tokens, and is
+// created automatically when the authorization flow completes for the first
+// time.
 const TOKEN_PATH = extentionLocation + '/token.json';
 
 var projectLocation;
@@ -123,10 +125,10 @@ function listFiles(auth) {
 
   function getFileIds(folderId) {
     drive.files.list({
-      pageSize: 100, // <--- Decrease this and add pages to extension
+      pageSize: 100, // <--- Decrease this and add pages functionality to the extension
       fields: 'nextPageToken, files(id, name)',
       q: `'${folderId}' in parents`,
-      orderBy: 'modifiedTime' // <---- Allow user to customize?
+      orderBy: 'name' // <---- Allow user to customize? ALso, this doesn't work atm.
     }, (err, res) => {
       if (err) return console.log('The API returned an error: ' + err);
       const files = res.data.files;
@@ -186,6 +188,7 @@ function listFiles(auth) {
     // Adds thumbnail
     var newGridImage = document.createElement('img');
     newGridImage.src = thumbnailLink;
+    newGridImage.className = 'thumbnail';
     newGridElement.appendChild(newGridImage);
     
     // Adds transparent download icon
