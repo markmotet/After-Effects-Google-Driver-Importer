@@ -26,7 +26,6 @@ setTimeout(() => {
   projectLocation = projectLocation.split('\\');
   projectLocation.pop();
   projectLocation = projectLocation.join('/')
-  alert(projectLocation)
 
 }, 100);
 
@@ -124,7 +123,7 @@ function listFiles(auth) {
 
   function getFileIds(folderId) {
     drive.files.list({
-      pageSize: 10,
+      pageSize: 100, // <--- Decrease this and add pages to extension
       fields: 'nextPageToken, files(id, name)',
       q: `'${folderId}' in parents`,
       orderBy: 'modifiedTime' // <---- Allow user to customize?
