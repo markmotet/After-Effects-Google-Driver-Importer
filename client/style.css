@@ -23,7 +23,7 @@ h1 {
     display: flex;
     justify-content: center;
     border-radius: 3px;
-
+    cursor: pointer;
 }
 
 .grid-item:hover .thumbnail {
@@ -48,7 +48,7 @@ h1 {
     
     object-fit:cover;
 
-    background-image: url('C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/transparent-background.svg');
+    background-image: url('C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/transparent-background.svg');
 }
 
 img {

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const readline = require('readline');
+const open = require('open');
 const {google} = require('googleapis');
 
 
@@ -47,17 +48,58 @@ fs.readFile(extentionLocation + '/credentials.json', (err, content) => {
  */
 function authorize(credentials, callback) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id, client_secret, redirect_uris[0]);
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, (err, token) => {
 
 
-    if (err) return getAccessToken(oAuth2Client, callback);
-    oAuth2Client.setCredentials(JSON.parse(token));
+    if (err) {
 
-    callback(oAuth2Client);
+      const authUrl = oAuth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: SCOPES,
+      });
+
+      createAuthButton(authUrl, oAuth2Client, callback);
+
+    }
+    else {
+      oAuth2Client.setCredentials(JSON.parse(token));
+      callback(oAuth2Client);
+    }
+
   });
+}
+
+
+function createAuthButton(authUrl, oAuth2Client, callback) {
+
+  var authContainer = document.getElementById('auth-container');
+
+  var authButton = document.createElement("button");
+  authButton.innerHTML = "Authenticate";
+  authContainer.appendChild(authButton); 
+
+  var authMessage = document.createElement("p");
+  authMessage.innerHTML = "This will open in your browser."; 
+  authContainer.appendChild(authMessage); 
+
+  var authInputField = document.createElement("input");
+
+  
+  authButton.addEventListener('click', () => {
+    open(authUrl)
+    authContainer.appendChild(authInputField); 
+  });
+  
+  var submitCodeButton = document.createElement("button");
+  submitCodeButton.innerHTML = "Submit Code";
+  authContainer.appendChild(submitCodeButton); 
+
+  submitCodeButton.addEventListener('click', () => {
+    getAccessToken(oAuth2Client, authInputField.value, callback);
+  });
+
 }
 
 /**
@@ -66,34 +108,25 @@ function authorize(credentials, callback) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
-function getAccessToken(oAuth2Client, callback) {
+function getAccessToken(oAuth2Client, code, callback) {
 
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
+  // Redirect to browser
+  // Unhide input field for verification token
 
   //console.log('Authorize this app by visiting this url:', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
 
-  rl.question('Enter the code from that page here: ', (code) => {
-
-    rl.close();
-    oAuth2Client.getToken(code, (err, token) => {
-      if (err) return console.error('Error retrieving access token', err);
-      oAuth2Client.setCredentials(token);
-      // Store the token to disk for later program executions
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) return console.error(err);
-        //console.log('Token stored to', TOKEN_PATH);
-      });
-
-      callback(oAuth2Client);
+  oAuth2Client.getToken(code, (err, token) => {
+    if (err) return console.error('Error retrieving access token', err);
+    oAuth2Client.setCredentials(token);
+    // Store the token to disk for later program executions
+    fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+      if (err) return console.error(err);
+      //console.log('Token stored to', TOKEN_PATH);
     });
+
+    callback(oAuth2Client);
   });
+
 }
 
 /**
@@ -103,7 +136,7 @@ function getAccessToken(oAuth2Client, callback) {
 function listFiles(auth) {
   /*-----------------------------------------------------------*/
   const drive = google.drive({version: 'v3', auth});
-
+  // UNHIDE IMPORT BAR
   
   // Retrieves the id, name, and thumbnailLink for each input file id and pipes the info into addImage()
   async function getFileInfo(fileId) {
@@ -179,7 +212,7 @@ function listFiles(auth) {
     
     //mimeType = mimeType.split('/')[0];
     // if(thumbnailLink == undefined && mimeType == 'audio') {
-    //   newGridImage.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/audio_icon.svg';
+    //   newGridImage.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/audio_icon.svg';
     // }
     // else {
     // newGridImage.src = thumbnailLink;
@@ -194,7 +227,7 @@ function listFiles(auth) {
     // Adds transparent download icon
     var downloadIcon = document.createElement('img');
     downloadIcon.className = 'hidden-icon';
-    downloadIcon.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/download-icon.svg';
+    downloadIcon.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/download-icon.svg';
     //downloadIcon.style.opacity = 0;
     newGridElement.appendChild(downloadIcon);
 
