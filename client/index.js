@@ -212,7 +212,7 @@ function listFiles(auth) {
     
     //mimeType = mimeType.split('/')[0];
     // if(thumbnailLink == undefined && mimeType == 'audio') {
-    //   newGridImage.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/audio_icon.svg';
+    //   newGridImage.src = extentionLocation + '/client/Images/audio_icon.svg';
     // }
     // else {
     // newGridImage.src = thumbnailLink;
@@ -227,8 +227,8 @@ function listFiles(auth) {
     // Adds transparent download icon
     var downloadIcon = document.createElement('img');
     downloadIcon.className = 'hidden-icon';
-    downloadIcon.src = 'C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/download-icon.svg';
-    //downloadIcon.style.opacity = 0;
+    downloadIcon.src = extentionLocation + '/client/Images/download-icon.svg';
+
     newGridElement.appendChild(downloadIcon);
 
     gridContainer.appendChild(newGridElement);
