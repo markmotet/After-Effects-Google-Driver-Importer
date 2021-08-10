@@ -64,6 +64,7 @@ function authorize(credentials, callback) {
 
     }
     else {
+      document.getElementById("url-input-container").style.display = "flex";
       oAuth2Client.setCredentials(JSON.parse(token));
       callback(oAuth2Client);
     }
@@ -71,35 +72,33 @@ function authorize(credentials, callback) {
   });
 }
 
-
 function createAuthButton(authUrl, oAuth2Client, callback) {
 
   var authContainer = document.getElementById('auth-container');
 
-  var authButton = document.createElement("button");
-  authButton.innerHTML = "Authenticate";
+  var authButton = document.createElement('button');
+  authButton.innerHTML = 'Authenticate';
+  authButton.className = 'button';
+  authButton.id = 'auth-button';
   authContainer.appendChild(authButton); 
 
-  var authMessage = document.createElement("p");
-  authMessage.innerHTML = "This will open in your browser."; 
-  authContainer.appendChild(authMessage); 
+  var authInputField = document.createElement('input');
 
-  var authInputField = document.createElement("input");
-
-  
-  authButton.addEventListener('click', () => {
-    open(authUrl)
-    authContainer.appendChild(authInputField); 
-  });
-  
-  var submitCodeButton = document.createElement("button");
-  submitCodeButton.innerHTML = "Submit Code";
-  authContainer.appendChild(submitCodeButton); 
+  var submitCodeButton = document.createElement('button');
+  submitCodeButton.innerHTML = 'Submit Code';
+  submitCodeButton.className = 'button';
+  submitCodeButton.id = 'submit-code-button';
 
   submitCodeButton.addEventListener('click', () => {
     getAccessToken(oAuth2Client, authInputField.value, callback);
   });
 
+  authButton.addEventListener('click', () => {
+    open(authUrl)
+    authContainer.appendChild(authInputField); 
+    authContainer.appendChild(submitCodeButton); 
+  });
+  
 }
 
 /**
@@ -110,11 +109,6 @@ function createAuthButton(authUrl, oAuth2Client, callback) {
  */
 function getAccessToken(oAuth2Client, code, callback) {
 
-  // Redirect to browser
-  // Unhide input field for verification token
-
-  //console.log('Authorize this app by visiting this url:', authUrl);
-
   oAuth2Client.getToken(code, (err, token) => {
     if (err) return console.error('Error retrieving access token', err);
     oAuth2Client.setCredentials(token);
@@ -123,6 +117,8 @@ function getAccessToken(oAuth2Client, code, callback) {
       if (err) return console.error(err);
       //console.log('Token stored to', TOKEN_PATH);
     });
+
+    document.getElementById("url-input-container").style.display = "flex";
 
     callback(oAuth2Client);
   });
