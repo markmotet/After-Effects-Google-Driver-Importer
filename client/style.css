@@ -50,7 +50,7 @@ h1 {
     
     object-fit:cover;
 
-    background-image: url('C:/Users/Mark/AppData/Roaming/Adobe/CEP/extensions/google-drive-importer/client/Images/transparent-background.svg');
+    background-image: url('./Images/transparent-background.svg');
 }
 
 img {
@@ -89,6 +89,10 @@ img {
     text-overflow: ellipsis;
 }
 
+#code-input-field {
+    margin-top: 50px;
+}
+
 label {
     font-size: 10;
     text-align: center;
@@ -101,23 +105,8 @@ label {
     border: 2px solid #8a8a8a;
     border-radius: 4px;
     padding: 12px 50px;
+    white-space: nowrap;
 }
-
-#auth-button {
-    display: block;
-    margin: auto;
-}
-
-#submit-code-button {
-    display: block;
-    margin: auto;
-}
-
-#import-button {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
 .button:hover {
     background-color: #8a8a8a;
     color: #232323;
@@ -125,6 +114,25 @@ label {
     cursor: pointer;
 }
 
+#auth-button {
+    display: block;
+    margin: auto;
+}
+
+#auth-container {
+    text-align: center;
+}
+
+#submit-code-button {
+    display: block;
+    margin: auto;
+    padding: 5px 5px;
+}
+
+#import-button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
 #url-input-container {
     display: none;

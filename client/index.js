@@ -1,5 +1,4 @@
 const fs = require('fs');
-const readline = require('readline');
 const open = require('open');
 const {google} = require('googleapis');
 
@@ -77,12 +76,15 @@ function createAuthButton(authUrl, oAuth2Client, callback) {
   var authContainer = document.getElementById('auth-container');
 
   var authButton = document.createElement('button');
-  authButton.innerHTML = 'Authenticate';
+  authButton.innerHTML = 'Link to Google Account';
   authButton.className = 'button';
   authButton.id = 'auth-button';
   authContainer.appendChild(authButton); 
 
   var authInputField = document.createElement('input');
+  authInputField.placeholder = "Paste code here..."
+  authInputField.className = 'input-field'
+  authInputField.id = 'code-input-field'
 
   var submitCodeButton = document.createElement('button');
   submitCodeButton.innerHTML = 'Submit Code';
@@ -110,11 +112,12 @@ function createAuthButton(authUrl, oAuth2Client, callback) {
 function getAccessToken(oAuth2Client, code, callback) {
 
   oAuth2Client.getToken(code, (err, token) => {
-    if (err) return console.error('Error retrieving access token', err);
+    if (err) return alert('Error retrieving access token', err);
+    document.getElementById("auth-container").style.display = "none";
     oAuth2Client.setCredentials(token);
     // Store the token to disk for later program executions
     fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-      if (err) return console.error(err);
+      if (err) return alert(err);
       //console.log('Token stored to', TOKEN_PATH);
     });
 
