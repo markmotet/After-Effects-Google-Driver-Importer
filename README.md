@@ -17,7 +17,7 @@ An After Effects extension that lets you download files from a Google Drive fold
 ## Use
 1. Open the extension window in After Effects by selecting *Window > Extensions > Google Drive Importer*
 
-<img src="https://user-images.githubusercontent.com/47171417/139520326-731fa43a-5ad9-4c73-aadb-a03e3e0e0df8.png" width="400" />
+<img src="https://user-images.githubusercontent.com/47171417/139520326-731fa43a-5ad9-4c73-aadb-a03e3e0e0df8.png" width="500" />
 
 2. Click *Link to Google Account*
 Your default web browser will open and it will ask you to choose which Google account you want to link. Follow the prompts and agree to all permission requests.
@@ -39,6 +39,12 @@ or
 
 ## Note
 This app is not verified by Google yet and is in developer mode. This means nobody can use it without me manually adding your email to the dev list.
+
+## Change active Google Account
+I have not implemented a way to sign out yet, so for now you need to navigate to *C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\google-drive-importer* and delete token.js.
+
+<img src="https://user-images.githubusercontent.com/47171417/139521177-d099ded2-5e81-41c0-b207-9520d57c2946.png" width="600" />
+
 
 
 
